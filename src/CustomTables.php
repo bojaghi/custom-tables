@@ -76,7 +76,7 @@ class CustomTables implements Module
         return Helper::loadConfig($this->tableConf);
     }
 
-    public function activation(): void
+    public function activate(): void
     {
         $this->createTables();
     }
