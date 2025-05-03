@@ -146,13 +146,13 @@ class CustomTables implements Module
         $table = wp_parse_args(
             $table,
             [
-                'name'    => '',
-                'field'   => [],
-                'index'   => [],
-                'engine'  => '',
-                'charset' => '',
-                'collate' => '',
-            ]
+                'table_name' => '',
+                'field'      => [],
+                'index'      => [],
+                'engine'     => '',
+                'charset'    => '',
+                'collate'    => '',
+            ],
         );
 
         $tableName = $table['table_name'];

@@ -76,21 +76,21 @@ if (!defined('ABSPATH')) {
 
 return [
     [
-        'name'    => 'table_name',
-        'field'   => [
+        'table_name' => 'table_name',
+        'field'      => [
             'id bigint(20) unsigned NOT NULL AUTO_INCREMENT',
             'name varchar(100) NOT NULL',
             'count bigint(20) unsigned NOT NULL',
         ],
-        'index'   => [
+        'index'     => [
             'PRIMARY KEY  (id)',            // Two spaces after 'PRIMARY KEY'. 'PRIMARY KEY' 다음 두 개의 공백.
             'UNIQUE KEY uni_name (name)',   // Just as-is, from here.          여기부터는 그대로.
             'FULLTEXT KEY idx_name (name)',
             'KEY idx_count (count)',   
         ],  
-        'engine'  => 'InnoDB', // Optional, defaults to 'InnoDB'.
-        'charset' => '',       // Optional, leave blank to use the default value of $wpdb.
-        'collate' => '',       // Optional, leave blank to use the default value of $wpdb.
+        'engine'    => 'InnoDB', // Optional, defaults to 'InnoDB'.
+        'charset'   => '',       // Optional, leave blank to use the default value of $wpdb.
+        'collate'   => '',       // Optional, leave blank to use the default value of $wpdb.
     ],
     /* ... */
 ];
