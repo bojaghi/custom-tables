@@ -1,10 +1,16 @@
 # CHANGELOG
 
+## 1.0.3
+
+2025-05-04
+
+- Fix wrong version check processing
+
 ## 1.0.2
 
 2025-05-04
 
-- Fix wrong array key name.
+- Fix wrong array key name
 
 ## 1.0.1
 

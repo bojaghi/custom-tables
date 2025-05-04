@@ -121,7 +121,7 @@ class CustomTables implements Module
     {
         if ($this->versionName && $this->version) {
             $version = get_option($this->versionName);
-            if ($version && version_compare($this->version, $version, '>')) {
+            if (false === $version || version_compare($this->version, $version, '>')) {
                 $this->updateTables();
             };
         }
