@@ -203,7 +203,7 @@ class CustomTables implements Module
         $sql = '';
 
         if ($tableName && $field) {
-            $sql = "CREATE TABLE IF NOT EXISTS $tableName (\n" .
+            $sql = "CREATE TABLE $tableName (\n" .
                 "$field" . ($index ? ",\n$index" : '') .
                 "\n) ENGINE=$engine DEFAULT CHARSET=$charset COLLATE=$collate COMMENT=$comment;";
         }
