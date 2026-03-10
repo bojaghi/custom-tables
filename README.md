@@ -35,15 +35,25 @@ if (!defined('ABSPATH')) {
 }
 
 return [
-    'version_name' => 'my_version_name', // Optional
-    'version'      => '1.0.0',           // Optional
-    'is_theme'     => false,             // Optional, defaults to false.
-    'main_file'    => __FILE__,          // Optional, defaults to blank.
-    'activation'   => false,             // Optional, defaults to false. Create tables on activation.
-    'deactivation' => false,             // Optional, defaults to false. Delete tables on deactivation.
-    'uninstall'    => false,             // Optional, defaults to false. Delete tables on uninstall.
+    'version_name'    => 'my_version_name', // Optional
+    'version'         => '1.0.0',           // Optional
+    'is_theme'        => false,             // Optional, defaults to false.
+    'main_file'       => __FILE__,          // Optional, defaults to blank.
+    'activation'      => false,             // Optional, defaults to false. Create tables on activation.
+    'deactivation'    => false,             // Optional, defaults to false. Delete tables on deactivation.
+    'uninstall'       => false,             // Optional, defaults to false. Delete tables on uninstall.
+    'suppress_errors' => false,             // Optional, defaults to false.
 ];
 ```
+
+- version_name: 옵션에 저장할 데이터베이스 버전의 옵션 이름입니다. 다른 옵션과 충돌되지 않는 유일한 이름으로 지어주세요.
+- version: 이 설정의 버전을 적어주세요. 기존 플러그인에 기록된 버전보다 이 버전이 높으면 테이블 업데이트를 진행합니다.
+- is_theme: 이 코드가 테마에서 동작하는지, 플러그인에서 동작하는지를 지정합니다.
+- mani_file: `is_theme`이 `false`인 경우, 플러그인의 메인 파일을 지정합니다.
+- activation: 이 코드가 동작하는 테마가 선택되었을 때, 또는 플러그인이 활성화 되었을 때 테이블을 **생성**합니다.
+- deactivation: 이 코드가 동작하는 테마가 다른 테마로 변경될 때, 또는 플러그인이 비활성화될 때 테이블을 **삭제(주의!!)** 합니다
+- uninstall: 이 코드가 동작하는 테마, 또는 플러그인이 삭제될 때 테이블을 **삭제(주의!!)** 합니다.
+- suppress_errors: `$wpdb->suppress_error` 파라미터를 조정합니다.
 
 ### 테이블 설정 파일의 예제
 
@@ -77,6 +87,7 @@ if (!defined('ABSPATH')) {
 return [
     [
         'table_name' => 'table_name',
+        'table_comment' => '', // Optional, table comment
         'field'      => [
             'id bigint(20) unsigned NOT NULL AUTO_INCREMENT',
             'name varchar(100) NOT NULL',
@@ -100,7 +111,7 @@ return [
 
 `version_name`, `version`이 설정되어 있으면 테이블 생성 후 옵션 테이블에 기록된 버전 `version`을 기록합니다.
 이 때 옵션 이름으로 `version_name`을 사용합니다. 그러므로 이름은 고유한 값을 가질 수 있도록 해 주세요.
-`version`값으로 PHP `version_compare()` 함수가 인식할 수 있는 버전 문자열을 사용하세요. 
+`version`값으로 PHP `version_compare()` 함수가 인식할 수 있는 버전 문자열을 사용하세요.
 
 이렇게 값이 설정되면 데이터베이스 업데이트 시, 굳이 플러그인을 활성화/비활성화 하지 않아도 자동으로 데이터베이스를 업그레이드 할 수 있습니다.
 이 기능을 사용하지 않으려면 값을 비워 두거나 키-값 쌍을 삭제하세요.
@@ -114,6 +125,9 @@ return [
 
 아래는 모두 기본값이 `false`입니다.
 
-- `activation`: 플러그인/테마 활성화 시 테이블을 자동으로 만듭니다. 
-- `deactivation`: 플러그인/테마 비활성화 시 테이블을 자동으로 삭제합니다.
-- `uninstall`: 플러그인/테마 삭제 시 테이블을 자동으로 삭제합니다.
+- `activation`: 플러그인/테마 활성화 시 테이블을 자동으로 만듭니다.
+- `deactivation`: 플러그인/테마 비활성화 시 테이블을 자동으로 **삭제**합니다.
+- `uninstall`: 플러그인/테마 삭제 시 테이블을 자동으로 **삭제**합니다.
+
+### suppress_errors
+

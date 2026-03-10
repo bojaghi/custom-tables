@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 1.0.4
+
+2026-03-10
+
+- Add 'table_comment'
+- Add 'suppress_errors'
+- Change behavior, do not update db_version if create, delete, or update tables fail
+
 ## 1.0.3
 
 2025-05-04

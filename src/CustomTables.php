@@ -12,20 +12,30 @@ class CustomTables implements Module
 
     private array|string $tableConf;
 
+    private bool $suppressErrors;
+
+    private bool|null $oldSuppressErrors;
+
+    /** @var array<string> */
+    private array $queryErrors;
+
     public function __construct(array|string $conf = '', array|string $tableConf = '')
     {
-        $this->versionName = '';
-        $this->version     = '';
-        $this->tableConf   = $tableConf;
+        $this->versionName       = '';
+        $this->version           = '';
+        $this->tableConf         = $tableConf;
+        $this->oldSuppressErrors = null;
+        $this->queryErrors       = [];
 
         $configDefault = [
-            'version_name' => '',    // Optional
-            'version'      => '',    // Optional
-            'is_theme'     => false, // Optional, defaults to false.
-            'main_file'    => '',    // Optional, defaults to blank.
-            'activation'   => false, // Optional, defaults to false. Create tables on activation.
-            'deactivation' => false, // Optional, defaults to false. Delete tables on deactivation.
-            'uninstall'    => false, // Optional, defaults to false. Delete tables on uninstall.
+            'version_name'    => '',    // Optional
+            'version'         => '',    // Optional
+            'is_theme'        => false, // Optional, defaults to false.
+            'main_file'       => '',    // Optional, defaults to blank.
+            'activation'      => false, // Optional, defaults to false. Create tables on activation.
+            'deactivation'    => false, // Optional, defaults to false. Delete tables on deactivation.
+            'uninstall'       => false, // Optional, defaults to false. Delete tables on uninstall.
+            'suppress_errors' => false, // Optional, defaults to false.
         ];
 
         $this->setup(wp_parse_args(Helper::loadConfig($conf), $configDefault));
@@ -69,6 +79,11 @@ class CustomTables implements Module
                 register_uninstall_hook($mainFile, [UninstallHelper::class, 'uninstall']);
             }
         }
+
+        $this->suppressErrors = filter_var(
+            $configuration['suppress_errors'] ?? false,
+            FILTER_VALIDATE_BOOLEAN
+        );
     }
 
     private function loadTableConf(): array
@@ -85,11 +100,18 @@ class CustomTables implements Module
     {
         global $wpdb;
 
+        $this->setSuppressErrors();
+
         $tableConf = $this->loadTableConf();
         foreach ($tableConf as $table) {
             $wpdb->query($this->getTableQuery($table));
+            $this->checkQueryErrors();
         }
-        update_option($this->versionName, $this->version);
+        if (!$this->hasQueryErrors()) {
+            update_option($this->versionName, $this->version);
+        }
+
+        $this->resetSuppressErrors();
     }
 
     public function deactivate(): void
@@ -101,15 +123,22 @@ class CustomTables implements Module
     {
         global $wpdb;
 
+        $this->setSuppressErrors();
+
         $tableConf = $this->loadTableConf();
         foreach ($tableConf as $table) {
             $tableName = $table['table_name'] ?? '';
             if ($tableName) {
                 // phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.DirectQuery
                 $wpdb->query("DROP TABLE IF EXISTS $tableName");
+                $this->checkQueryErrors();
             }
         }
-        delete_option($this->versionName);
+        if (!$this->hasQueryErrors()) {
+            delete_option($this->versionName);
+        }
+
+        $this->resetSuppressErrors();
     }
 
     public function uninstall(): void
@@ -129,14 +158,21 @@ class CustomTables implements Module
 
     public function updateTables(): void
     {
+        $this->setSuppressErrors();
+
         if (!function_exists('dbDelta')) {
             require_once ABSPATH . 'wp-admin/includes/upgrade.php';
         }
         $tableConf = $this->loadTableConf();
         foreach ($tableConf as $table) {
             dbDelta($this->getTableQuery($table));
+            $this->checkQueryErrors();
         }
-        update_option($this->versionName, $this->version);
+        if (!$this->hasQueryErrors()) {
+            update_option($this->versionName, $this->version);
+        }
+
+        $this->resetSuppressErrors();
     }
 
     private function getTableQuery(array $table): string
@@ -146,12 +182,13 @@ class CustomTables implements Module
         $table = wp_parse_args(
             $table,
             [
-                'table_name' => '',
-                'field'      => [],
-                'index'      => [],
-                'engine'     => '',
-                'charset'    => '',
-                'collate'    => '',
+                'table_name'    => '',
+                'table_comment' => '',
+                'field'         => [],
+                'index'         => [],
+                'engine'        => '',
+                'charset'       => '',
+                'collate'       => '',
             ],
         );
 
@@ -161,15 +198,51 @@ class CustomTables implements Module
         $engine    = $table['engine'] ?: 'InnoDB';
         $charset   = $table['charset'] ?: $wpdb->charset;
         $collate   = $table['collate'] ?: $wpdb->collate;
+        $comment   = $wpdb->prepare('%s', ($table['table_comment'] ?: ''));
 
         $sql = '';
 
         if ($tableName && $field) {
-            $sql = "CREATE TABLE $tableName (\n" .
+            $sql = "CREATE TABLE IF NOT EXISTS $tableName (\n" .
                 "$field" . ($index ? ",\n$index" : '') .
-                "\n) ENGINE=$engine DEFAULT CHARSET=$charset COLLATE=$collate;";
+                "\n) ENGINE=$engine DEFAULT CHARSET=$charset COLLATE=$collate COMMENT=$comment;";
         }
 
-        return $sql;
+        return apply_filters('bojaghi/custom-tables/getTableQuery', $sql, $tableName);
+    }
+
+    private function setSuppressErrors(): void
+    {
+        global $wpdb;
+
+        if ($this->suppressErrors) {
+            $this->oldSuppressErrors = $wpdb->suppress_errors;
+            $wpdb->suppress_errors   = true;
+        }
+    }
+
+    private function resetSuppressErrors(): void
+    {
+        global $wpdb;
+
+        if ($this->suppressErrors && !is_null($this->oldSuppressErrors)) {
+            $wpdb->suppress_errors = $this->oldSuppressErrors;
+
+            $this->oldSuppressErrors = null;
+        }
+    }
+
+    private function checkQueryErrors(): void
+    {
+        global $wpdb;
+
+        if ($wpdb->last_error) {
+            $this->queryErrors[] = $wpdb->last_error;
+        }
+    }
+
+    private function hasQueryErrors(): bool
+    {
+        return !empty($this->queryErrors);
     }
 }
