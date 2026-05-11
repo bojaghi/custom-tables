@@ -82,7 +82,7 @@ class CustomTables implements Module
 
         $this->suppressErrors = filter_var(
             $configuration['suppress_errors'] ?? false,
-            FILTER_VALIDATE_BOOLEAN
+            FILTER_VALIDATE_BOOLEAN,
         );
     }
 
@@ -98,14 +98,15 @@ class CustomTables implements Module
 
     public function createTables(): void
     {
-        global $wpdb;
-
         $this->setSuppressErrors();
 
         $tableConf = $this->loadTableConf();
         foreach ($tableConf as $table) {
-            $wpdb->query($this->getTableQuery($table));
-            $this->checkQueryErrors();
+            $query = $this->getTableQuery($table);
+            if ($query) {
+                dbDelta($query);
+                $this->checkQueryErrors();
+            }
         }
         if (!$this->hasQueryErrors()) {
             update_option($this->versionName, $this->version);
@@ -165,8 +166,11 @@ class CustomTables implements Module
         }
         $tableConf = $this->loadTableConf();
         foreach ($tableConf as $table) {
-            dbDelta($this->getTableQuery($table));
-            $this->checkQueryErrors();
+            $query = $this->getTableQuery($table);
+            if ($query) {
+                dbDelta($query);
+                $this->checkQueryErrors();
+            }
         }
         if (!$this->hasQueryErrors()) {
             update_option($this->versionName, $this->version);
@@ -203,9 +207,12 @@ class CustomTables implements Module
         $sql = '';
 
         if ($tableName && $field) {
-            $sql = "CREATE TABLE $tableName (\n" .
-                "$field" . ($index ? ",\n$index" : '') .
-                "\n) ENGINE=$engine DEFAULT CHARSET=$charset COLLATE=$collate COMMENT=$comment;";
+            $exists = !!$wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $tableName));
+            if (!$exists) {
+                $sql = "CREATE TABLE $tableName (\n" .
+                    "$field" . ($index ? ",\n$index" : '') .
+                    "\n) ENGINE=$engine DEFAULT CHARSET=$charset COLLATE=$collate COMMENT=$comment;";
+            }
         }
 
         return apply_filters('bojaghi/custom-tables/getTableQuery', $sql, $tableName);

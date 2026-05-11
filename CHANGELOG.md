@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.0.6
+
+2026-05-12
+
+- Fix displaying error if tables already exist when activating
+
 ## 1.0.5
 
 2026-03-11
