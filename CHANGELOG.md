@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.0.7
+
+2026-07-03
+
+- Add action/filter hooks before and after dbDelta.
+
 ## 1.0.6
 
 2026-05-12

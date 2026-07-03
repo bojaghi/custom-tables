@@ -164,14 +164,23 @@ class CustomTables implements Module
         if (!function_exists('dbDelta')) {
             require_once ABSPATH . 'wp-admin/includes/upgrade.php';
         }
+
+        do_action('bojgchi/cutstom-tables/before_update_tables');
+
         $tableConf = $this->loadTableConf();
+
         foreach ($tableConf as $table) {
             $query = $this->getTableQuery($table);
             if ($query) {
-                dbDelta($query);
+                $query  = apply_filters('bojgchi/cutstom-tables/before_update_table', $query, $table);
+                $result = dbDelta($query);
+                do_action('bojgchi/cutstom-tables/after_update_table', $table, $result);
                 $this->checkQueryErrors();
             }
         }
+
+        do_action('bojgchi/cutstom-tables/after_update_tables', $this->queryErrors);;
+
         if (!$this->hasQueryErrors()) {
             update_option($this->versionName, $this->version);
         }
