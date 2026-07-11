@@ -216,12 +216,9 @@ class CustomTables implements Module
         $sql = '';
 
         if ($tableName && $field) {
-            $exists = !!$wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $tableName));
-            if (!$exists) {
-                $sql = "CREATE TABLE $tableName (\n" .
-                    "$field" . ($index ? ",\n$index" : '') .
-                    "\n) ENGINE=$engine DEFAULT CHARSET=$charset COLLATE=$collate COMMENT=$comment;";
-            }
+            $sql = "CREATE TABLE $tableName (\n" .
+                "$field" . ($index ? ",\n$index" : '') .
+                "\n) ENGINE=$engine DEFAULT CHARSET=$charset COLLATE=$collate COMMENT=$comment;";
         }
 
         return apply_filters('bojaghi/custom-tables/getTableQuery', $sql, $tableName);

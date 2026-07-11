@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.0.8
+
+2026-07-12
+
+- Fix CustomTables::getTableQuery bug.
+
 ## 1.0.7
 
 2026-07-03
