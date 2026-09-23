@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2.0.0
+
+2026-09-25
+
+- Supporting WordPress coding standard.
+
 ## 1.0.8
 
 2026-07-12

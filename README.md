@@ -10,16 +10,16 @@
 예시:
 
 ```php
-use Bojaghi\CustomTables\CustomTables;
+use Bojaghi\inc\Custom_Tables;
 
-new CustomTableFactory(
+new Custom_Tables(
     [ /*...*/ ], // Enter configuration array.    설정을 담은 배열을 넣거나.
     [ /*...*/ ], // Enter table definition array. 테이블 설정을 담은 배열을 넣거나.
 )
 
 /* OR */
 
-new CustomTables(
+new Custom_Tables(
     '/path/to/settings',  // Enter path to configuration file.    설정을 담은 파일 경로를 문자열로.
     '/path/to/table-def', // Enter path to table definition file. 테이블 설정을 담은 파일 경로를 문자열로.
 )
@@ -30,20 +30,21 @@ new CustomTables(
 ### 설정 파일의 예제
 
 ```php
-if (!defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-return [
-    'version_name'    => 'my_version_name', // Optional
-    'version'         => '1.0.0',           // Optional
-    'is_theme'        => false,             // Optional, defaults to false.
-    'main_file'       => __FILE__,          // Optional, defaults to blank.
-    'activation'      => false,             // Optional, defaults to false. Create tables on activation.
-    'deactivation'    => false,             // Optional, defaults to false. Delete tables on deactivation.
-    'uninstall'       => false,             // Optional, defaults to false. Delete tables on uninstall.
-    'suppress_errors' => false,             // Optional, defaults to false.
-];
+return array(
+    'version_name'      => 'my_version_name', // Optional
+    'version'           => '1.0.0',           // Optional
+    'is_theme'          => false,             // Optional, defaults to false.
+    'main_file'         => __FILE__,          // Optional, defaults to blank.
+    'activation'        => false,             // Optional, defaults to false. Create tables on activation.
+    'deactivation'      => false,             // Optional, defaults to false. Delete tables on deactivation.
+    'uninstall'         => false,             // Optional, defaults to false. Delete tables on uninstall.
+    'suppress_errors'   => false,             // Optional, defaults to false.
+    'enable_update_log' => true,              // Optional, defaults to true.
+);
 ```
 
 - version_name: 옵션에 저장할 데이터베이스 버전의 옵션 이름입니다. 다른 옵션과 충돌되지 않는 유일한 이름으로 지어주세요.
@@ -54,11 +55,12 @@ return [
 - deactivation: 이 코드가 동작하는 테마가 다른 테마로 변경될 때, 또는 플러그인이 비활성화될 때 테이블을 **삭제(주의!!)** 합니다
 - uninstall: 이 코드가 동작하는 테마, 또는 플러그인이 삭제될 때 테이블을 **삭제(주의!!)** 합니다.
 - suppress_errors: `$wpdb->suppress_error` 파라미터를 조정합니다.
+- enable_update_log: 테이블 업데이트를 진행할 때, 변경되는 내역을 기록합니다. 연속적으로 기록하지는 않고, 마지막 변경 내역만을 기록합니다.
 
 ### 테이블 설정 파일의 예제
 
 ```php
-if (!defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
@@ -84,25 +86,25 @@ if (!defined('ABSPATH')) {
  * @link   https://codex.wordpress.org/Creating_Tables_with_Plugins
  */
 
-return [
-    [
-        'table_name' => 'table_name',
+return array(
+    array(
+        'table_name'    => 'table_name',
         'table_comment' => '', // Optional, table comment
-        'field'      => [
+        'field'         => array(
             'id bigint(20) unsigned NOT NULL AUTO_INCREMENT',
             'name varchar(100) NOT NULL',
             'count bigint(20) unsigned NOT NULL',
-        ],
-        'index'     => [
+        ),
+        'index'         => array(
             'PRIMARY KEY  (id)',            // Two spaces after 'PRIMARY KEY'. 'PRIMARY KEY' 다음 두 개의 공백.
             'UNIQUE KEY uni_name (name)',   // Just as-is, from here.          여기부터는 그대로.
             'FULLTEXT KEY idx_name (name)',
             'KEY idx_count (count)',   
-        ],  
-        'engine'    => 'InnoDB', // Optional, defaults to 'InnoDB'.
-        'charset'   => '',       // Optional, leave blank to use the default value of $wpdb.
-        'collate'   => '',       // Optional, leave blank to use the default value of $wpdb.
-    ],
+        ),  
+        'engine'        => 'InnoDB', // Optional, defaults to 'InnoDB'.
+        'charset'       => '',       // Optional, leave blank to use the default value of $wpdb.
+        'collate'       => '',       // Optional, leave blank to use the default value of $wpdb.
+    ),
     /* ... */
 ];
 ```
@@ -112,6 +114,12 @@ return [
 `version_name`, `version`이 설정되어 있으면 테이블 생성 후 옵션 테이블에 기록된 버전 `version`을 기록합니다.
 이 때 옵션 이름으로 `version_name`을 사용합니다. 그러므로 이름은 고유한 값을 가질 수 있도록 해 주세요.
 `version`값으로 PHP `version_compare()` 함수가 인식할 수 있는 버전 문자열을 사용하세요.
+
+예를 들어,
+
+- 1.1.2
+- 1.1.1-p.1 (1.1.2보다 이쪽이 높은 버전)
+- 1.1.1-b.1 (1.1.2보다 이쪽이 낮은 버전)
 
 이렇게 값이 설정되면 데이터베이스 업데이트 시, 굳이 플러그인을 활성화/비활성화 하지 않아도 자동으로 데이터베이스를 업그레이드 할 수 있습니다.
 이 기능을 사용하지 않으려면 값을 비워 두거나 키-값 쌍을 삭제하세요.
@@ -129,5 +137,18 @@ return [
 - `deactivation`: 플러그인/테마 비활성화 시 테이블을 자동으로 **삭제**합니다.
 - `uninstall`: 플러그인/테마 삭제 시 테이블을 자동으로 **삭제**합니다.
 
-### suppress_errors
+### 에러 표시하기
 
+기본적으로 `$wpdb`의 `suppress_errors`가 `false`로 되어 있어 에러가 출력됩니다.
+이를 보이지 않게 설정값에서 `true`로 설정할 수 있습니다.
+
+보이지 않게 설정한 에러를 조사하기 위해서는 `get_query_errors()` 메소드를 사용할 수 있습니다.
+
+### 업데이트 로그
+
+`version_name`을 지정하고, `enable_update_log` 설정을 `true`로 설정하면 데이터베이스 업데이트 과정에서 생기는 테이블 변경 내역에 대한 정보를
+옵션 테이블에 저장할 수 있습니다.
+
+주의할 점으로 모든 내역이 처음부터 저장되는 것은 아닙니다. 가장 마지막에 실행된 업데이트 내용에 한해서만 저장됩니다.
+첫번째 줄은 업데이트가 진행된 버전이입니다.
+두번째 줄부터 dbDelta()가 변경한 내역을 한 줄에 하나씩 저장됩니다.

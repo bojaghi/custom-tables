@@ -1,9 +1,9 @@
 <?php
 
-namespace Bojaghi\CustomTables\Tests;
+namespace Bojaghi\inc\Tests;
 
-use Bojaghi\CustomTables\CustomTables;
-use Bojaghi\CustomTables\UninstallHelper;
+use Bojaghi\inc\CustomTables;
+use Bojaghi\inc\UninstallHelper;
 use WP_UnitTestCase;
 
 class TestCustomTables extends WP_UnitTestCase

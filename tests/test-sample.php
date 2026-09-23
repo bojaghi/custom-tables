@@ -1,11 +1,13 @@
 <?php
-namespace Bojaghi\WPTests;
-use \WP_UnitTestCase;
+
+namespace Bojaghi\inc\Tests;
+
+use WP_UnitTestCase;
 
 /**
  * Sample test case.
  */
-class TestSample extends WP_UnitTestCase {
+class Sample_Test extends WP_UnitTestCase {
 
 	/**
 	 * A single example test.
