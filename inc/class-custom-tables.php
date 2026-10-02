@@ -305,9 +305,8 @@ class Custom_Tables implements Module {
 				 *
 				 * @var string   $table_name   Table name.
 				 * @var string   $version_name Version name.
-				 * @var string[] $result       dbDelta result.
 				 */
-				do_action( 'bojaghi_custom_tables_after_delete_table', $table_name, $this->version_name, $result );
+				do_action( 'bojaghi_custom_tables_after_delete_table', $table_name, $this->version_name );
 			}
 		}
 
