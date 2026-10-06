@@ -4,7 +4,7 @@
   "plugins": [],
   "testsEnvironment": false,
   "mappings": {
-    "wp-content/boilerplate": "."
+    "wp-content/custom-tables": "."
   },
   "config": {
   }

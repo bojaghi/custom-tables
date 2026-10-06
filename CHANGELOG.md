@@ -1,8 +1,21 @@
 # CHANGELOG
 
+## 2.1.0
+
+2026-10-07
+
+- Add Table_Schema interface.
+- Changes to methods:
+  - From `clear_version_table` to `invalidate_version`.
+  - From `get_version_setup` to `get_planned_version`.
+  - From `get_version_table` to `get_actual_version`.
+  - From `set_version_table` to `sync_version`.
+  - `get_table_query` is public static method.
+- Fix wrong config values.
+
 ## 2.0.1
 
-2026-10-22
+2026-10-02
 
 - Fix warning.
 

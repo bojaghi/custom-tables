@@ -111,7 +111,7 @@ class Custom_Tables_Test extends WP_UnitTestCase {
 		// Ensure that the table is not present now.
 		$tables = $wpdb->get_col( "SHOW TABLES LIKE '{$wpdb->prefix}ctt_%'" );
 		$this->assertNotContains( "{$wpdb->prefix}ctt_table_001", $tables );
-		$this->assertFalse( $ct->get_version_table() );
+		$this->assertFalse( $ct->get_actual_version() );
 
 		// Create tables now.
 		$ct->create_tables();
@@ -119,8 +119,8 @@ class Custom_Tables_Test extends WP_UnitTestCase {
 		// Ensure that table is properly created.
 		$col = $wpdb->get_col( "SHOW TABLES LIKE '{$wpdb->prefix}ctt_%'" );
 		$this->assertContains( "{$wpdb->prefix}ctt_table_001", $col );
-		$this->assertEquals( '1.0.0', $ct->get_version_setup() );
-		$this->assertEquals( '1.0.0', $ct->get_version_table() );
+		$this->assertEquals( '1.0.0', $ct->get_planned_version() );
+		$this->assertEquals( '1.0.0', $ct->get_actual_version() );
 		$this->assertEmpty( $ct->get_query_errors() );
 
 		// Test insert and get query.
@@ -155,7 +155,7 @@ class Custom_Tables_Test extends WP_UnitTestCase {
 		$this->assertNotContains( "{$wpdb->prefix}ctt_table_001", $col );
 
 		// Ensure that version string in option table is also gone.
-		$this->assertFalse( $ct->get_version_table() );
+		$this->assertFalse( $ct->get_actual_version() );
 	}
 
 	public function test_create_table_error(): void {
@@ -195,7 +195,7 @@ class Custom_Tables_Test extends WP_UnitTestCase {
 		// Ensure that the table is not present now.
 		$tables = $wpdb->get_col( "SHOW TABLES LIKE '{$wpdb->prefix}ctt_%'" );
 		$this->assertNotContains( "{$wpdb->prefix}ctt_table_002", $tables );
-		$this->assertFalse( $ct->get_version_table() );
+		$this->assertFalse( $ct->get_actual_version() );
 
 		// Try to create now.
 		$ct->create_tables();
@@ -207,7 +207,7 @@ class Custom_Tables_Test extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'int(10) NULL DEFAULT 0', $errors[0] );
 
 		// Ensure db version is not written.
-		$this->assertFalse( $ct->get_version_table() );
+		$this->assertFalse( $ct->get_actual_version() );
 	}
 
 	public function test_update_table(): void {

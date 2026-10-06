@@ -237,7 +237,7 @@ class Custom_Tables implements Module {
 		do_action( 'bojaghi_custom_tables_after_create_tables', $this->version_name, $this->query_errors );
 
 		if ( ! $this->has_query_errors() ) {
-			$this->set_version_table();
+			$this->sync_version();
 		}
 
 		$this->reset_suppress_errors();
@@ -319,7 +319,7 @@ class Custom_Tables implements Module {
 		do_action( 'bojaghi_custom_tables_after_delete_tables', $this->version_name, $this->query_errors );
 
 		if ( ! $this->has_query_errors() ) {
-			$this->clear_version_table();
+			$this->invalidate_version();
 		}
 
 		$this->reset_suppress_errors();
@@ -331,8 +331,8 @@ class Custom_Tables implements Module {
 	 * @return void
 	 */
 	public function check_table_version(): void {
-		if ( $this->version_name && $this->get_version_setup() ) {
-			$version = $this->get_version_table();
+		if ( $this->version_name && $this->get_planned_version() ) {
+			$version = $this->get_actual_version();
 			if ( false === $version || version_compare( $this->version, $version, '>' ) ) {
 				$this->update_tables();
 			}
@@ -400,7 +400,7 @@ class Custom_Tables implements Module {
 		do_action( 'bojaghi_custom_tables_after_update_tables', $this->version_name, $this->query_errors );
 
 		if ( ! $this->has_query_errors() ) {
-			$this->set_version_table();
+			$this->sync_version();
 		}
 
 		// Write every dbDelta result to option table.
@@ -455,7 +455,7 @@ class Custom_Tables implements Module {
 	 *
 	 * @return void
 	 */
-	public function clear_version_table(): void {
+	public function invalidate_version(): void {
 		if ( $this->version_name ) {
 			delete_option( "bojaghi_custom_tables_$this->version_name", '', true );
 		}
@@ -466,7 +466,7 @@ class Custom_Tables implements Module {
 	 *
 	 * @return string
 	 */
-	public function get_version_setup(): string {
+	public function get_planned_version(): string {
 		return $this->version;
 	}
 
@@ -475,7 +475,7 @@ class Custom_Tables implements Module {
 	 *
 	 * @return string|false
 	 */
-	public function get_version_table(): string|false {
+	public function get_actual_version(): string|false {
 		return get_option( "bojaghi_custom_tables_$this->version_name" );
 	}
 
@@ -484,7 +484,7 @@ class Custom_Tables implements Module {
 	 *
 	 * @return void
 	 */
-	protected function set_version_table(): void {
+	public function sync_version(): void {
 		if ( $this->version_name ) {
 			update_option( "bojaghi_custom_tables_$this->version_name", $this->version, true );
 		}
@@ -497,7 +497,7 @@ class Custom_Tables implements Module {
 	 *
 	 * @return string
 	 */
-	private function get_table_query( array $table ): string {
+	public static function get_table_query( array $table ): string {
 		global $wpdb;
 
 		$table = wp_parse_args(
