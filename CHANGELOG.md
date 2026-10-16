@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2.1.1-p.1
+
+2026-10-16
+
+- Set default value of Table_Schema::get_table_comment ().
+
 ## 2.1.1
 
 2026-10-16
@@ -12,11 +18,11 @@
 
 - Add Table_Schema interface.
 - Changes to methods:
-  - From `clear_version_table` to `invalidate_version`.
-  - From `get_version_setup` to `get_planned_version`.
-  - From `get_version_table` to `get_actual_version`.
-  - From `set_version_table` to `sync_version`.
-  - `get_table_query` is public static method.
+    - From `clear_version_table` to `invalidate_version`.
+    - From `get_version_setup` to `get_planned_version`.
+    - From `get_version_table` to `get_actual_version`.
+    - From `set_version_table` to `sync_version`.
+    - `get_table_query` is public static method.
 - Fix wrong config values.
 
 ## 2.0.1

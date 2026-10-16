@@ -25,7 +25,9 @@ abstract class Table_Schema {
 	 *
 	 * @return string
 	 */
-	abstract public static function get_table_comment(): string;
+	public static function get_table_comment(): string {
+		return '';
+	}
 
 	/**
 	 * 테이블 필드 선언을 리턴한다.
