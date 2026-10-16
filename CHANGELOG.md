@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2.1.1
+
+2026-10-16
+
+- Change Table_Schema from interface to abstract class.
+
 ## 2.1.0
 
 2026-10-07
